@@ -1,0 +1,14 @@
+name = "forallforall"
+version = "0.1.0"
+defaultTargets = ["forallforall"]
+
+[[lean_lib]]
+name = "Forallforall"
+
+[[lean_exe]]
+name = "forallforall"
+root = "Main"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"

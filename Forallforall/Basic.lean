@@ -44,5 +44,28 @@ example : ∀ n , ∀ t , nodes ( explode n t ) = 2^n * ( 1 + nodes t) - 1 := by
     unfold explode             -- ⊢ ∀ (t : Tree'), nodes (explode n (t.node t)) = 2 ^ (n + 1) * (1 + nodes t) - 1
     intro t'                   -- ⊢ nodes (explode n (t'.node t')) = 2 ^ (n + 1) * (1 + nodes t') - 1
     rw [ ih ( node t' t' ) ]   -- ⊢ 2 ^ n * (1 + nodes (t'.node t')) - 1 = 2 ^ (n + 1) * (1 + nodes t') - 1
-    rw [ nodes ]                -- ⊢ 2 ^ n * (1 + (1 + nodes t' + nodes t')) - 1 = 2 ^ (n + 1) * (1 + nodes t') - 1
+    rw [ nodes ]               -- ⊢ 2 ^ n * (1 + (1 + nodes t' + nodes t')) - 1 = 2 ^ (n + 1) * (1 + nodes t') - 1
     ring_nf                    -- no goals
+
+-- The following is a more idiomatic way of writing this theorem.
+-- After `:=`, both `n` and `t` are fixed. One can recover a goal
+-- starting with `∀ t` using a tactic `revert t`. Note that this
+-- time, `ih` has type `∀ {t : Tree'}, nodes (explode n t) = 2 ^ n * (1 + nodes t) - 1`
+-- which is exactly the same as above, except that the parameter
+-- `t` is implicit (indicated by curly braces rather than parentheses).
+-- This necessitates the syntax `ih ( t := node t' t' )` for function
+-- application below.
+
+example : nodes ( explode n t ) = 2^n * ( 1 + nodes t) - 1 := by
+                                    -- ⊢ nodes (explode n t) = 2 ^ n * (1 + nodes t) - 1
+  revert t                          -- ⊢ ∀ {t : Tree'}, nodes (explode n t) = 2 ^ n * (1 + nodes t) - 1
+  induction n with                  -- ⊢ ∀ {t : Tree'}, nodes (explode n t) = 2 ^ n * (1 + nodes t) - 1
+  | zero =>                         -- ⊢ ∀ {t : Tree'}, nodes (explode 0 t) = 2 ^ 0 * (1 + nodes t) - 1
+    unfold explode                  -- ⊢ ∀ {t : Tree'}, nodes t = 2 ^ 0 * (1 + nodes t) - 1
+    simp_all +arith                 -- no goals
+  | succ n ih =>                    -- ⊢ ∀ {t : Tree'}, nodes (explode (n + 1) t) = 2 ^ (n + 1) * (1 + nodes t) - 1
+    unfold explode                  -- ⊢ ∀ {t : Tree'}, nodes (explode n (t.node t)) = 2 ^ (n + 1) * (1 + nodes t) - 1
+    intro t'                        -- ⊢ nodes (explode n (t'.node t')) = 2 ^ (n + 1) * (1 + nodes t') - 1
+    rw [ ih ( t := node t' t' ) ]   -- ⊢ 2 ^ n * (1 + nodes (t'.node t')) - 1 = 2 ^ (n + 1) * (1 + nodes t') - 1
+    rw [ nodes ]                    -- ⊢ 2 ^ n * (1 + (1 + nodes t' + nodes t')) - 1 = 2 ^ (n + 1) * (1 + nodes t') - 1
+    ring_nf                         -- no goals

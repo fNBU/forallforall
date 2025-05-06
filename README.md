@@ -1,3 +1,3 @@
 # forallforall
 
-An exaple for a couple friends. See *Concrete Semantics* Exercise 2.10.
+[An example](./Forallforall/Basic.lean) for a couple friends. See *Concrete Semantics* Exercise 2.10.
